@@ -25,3 +25,10 @@ options:
 ```
 
 example files are given: test_folders, test_paths, and files_to_copy
+
+## Next improvements:
+https://github.com/islem-esi/swe-bench-docker/issues/2
+
+https://github.com/islem-esi/swe-bench-docker/issues/1
+
+If there are other issues or needed improvements, please raise an issue and assign a label accordingly...
