@@ -3,6 +3,7 @@ import os
 import io
 import tarfile
 import argparse
+import subprocess
 
 build_logs_dir = "build_files"
 
@@ -64,7 +65,7 @@ def copy_files_to_container(container, files_to_copy, test_folders, instance_id)
     
     for line in lines:
         source_file, dest_path = line.strip().replace("\n", "").split("#")
-        source_file_path = os.path.join(folder_path, source_file)
+        source_file_path = os.path.join(source_file)
         
         dest_path = os.path.join(test_path, dest_path)
         
@@ -172,19 +173,34 @@ def main(image_name, test_paths, file_pairs_path, instance_id):
     # Step 1: Pull the Docker image
     pull_code = pull_image(client, image_name)
     if pull_code != 0:
-        print("Failed to pull remove image.")
+        print("Failed to pull remote image.")
         print("Building locally...")
-        pass
+        if not os.path.exists(os.path.join("build_files", instance_id)):
+            command = [
+                    "python", "-m", "swebench.harness.run_evaluation",
+                    "--predictions_path", "gold",
+                    "--max_workers", "1",
+                    "--instance_ids", instance_id,
+                    "--run_id", "validate-gold"
+                ]
+            subprocess.run(command, check=True)
+        else:
+            print("Instance already processed, skipping build...")
+        container_name="sweb.eval.{}.validate-gold".format(instance_id)
+        os.system("docker commit {} {}".format(container_name, image_name))
+
+        os.system("cp -r logs/run_evaluation/validate-gold/gold/{} {}/".format(instance_id, build_logs_dir))
+        os.system("rm -rf logs")
         #TODO: build locally
     # Step 2: Start the Docker container
     container = start_container(client, image_name)
     os.system("cp {}/{}/eval.sh.temp {}/{}/eval.sh".format(build_logs_dir, instance_id, build_logs_dir, instance_id))
     update_command_with_paths("{}/{}/eval.sh".format(build_logs_dir, instance_id), test_paths, instance_id)
-    add_patch_command_to_eval_script("build_logs_dir/{}/eval.sh".format(instance_id))
+    add_patch_command_to_eval_script("{}/{}/eval.sh".format(build_logs_dir, instance_id))
     
     # Step 3: Read file pairs and copy files
     file_pairs = parse_file_pairs(file_pairs_path)
-    copy_files_to_container(container, ".", instance_id)
+    copy_files_to_container(container, files_to_copy, test_folders, instance_id)
 
     # Step 4: Run eval.sh in the container
     container.exec_run("chmod +x /testbed/eval.sh")
@@ -212,5 +228,5 @@ if __name__ == "__main__":
     files_to_copy = args.files_to_copy
     test_folders = args.test_folders
     image_name = "islemdockerdev/{}".format(instance_id.replace("-", "").replace("_", ""))  # Replace with the actual Docker image name
-    output = main(image_name, test_paths, files_to_copy, instanec_id)
+    output = main(image_name, test_paths, files_to_copy, instance_id)
     print("Final Output:\n", output)

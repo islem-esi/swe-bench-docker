@@ -23,3 +23,5 @@ positional arguments:
 options:
   -h, --help     show this help message and exit
 ```
+
+example files are given: test_folders, test_paths, and files_to_copy

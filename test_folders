@@ -1,2 +1,10 @@
-django /testbed/tests
-scikit-learn /testbed/
+django /testbed/tests/
+scikit-learn /testbed/sklearn/tests/
+sympy /testbed/
+sphinx /testbed/tests
+pydata /testbed/xarray/tests
+requests /testbed
+matplotlib /testbed/lib/matplotlib/tests
+astropy /testbed/astropy/tests
+pytest /testbed/testing
+pylint /testbed/tests
