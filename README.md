@@ -8,6 +8,7 @@ Create, customize, and manage SWE-Bench containers
 python3.10 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+pip install -e ./SWE-bench
 ```
 
 ## Usage
@@ -24,7 +25,25 @@ options:
   -h, --help     show this help message and exit
 ```
 
-example files are given: test_folders, test_paths, and files_to_copy
+### Structure of files_to_copy file
+One pair per line. The pair is separated by '#'.
+The two first lines should always be present, but, do not forget to replace "pytest-dev__pytest-7432" with the actual issue_id you are working on.
+```txt
+build_files/pytest-dev__pytest-7432/eval.sh#/testbed/eval.sh
+build_files/pytest-dev__pytest-7432/patch.diff#/testbed/patch.diff
+PATH/TO/SOME/FILE/ON/YOUR/MACHINE#DESTINATION/PATH/ON/DOCKER/CONTAINER
+...#...
+...#...
+```
+
+### Structure of test paths
+```
+PATH/TO/GENERATED/TEST/FILE#DESTINATION/PATH/ON/DOCKER
+...#...
+```
+The destionation path should not include the prefix path which is found in test_folders file (respect this rule especially for django).
+
+Example files are given: test_folders, test_paths, and files_to_copy
 
 ## Next improvements:
 https://github.com/islem-esi/swe-bench-docker/issues/2
