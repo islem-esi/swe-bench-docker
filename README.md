@@ -25,7 +25,7 @@ options:
   -h, --help     show this help message and exit
 ```
 
-### Structure of files_to_copy file
+### Structure of 'files_to_copy' file
 One pair per line. The pair is separated by '#'.
 The two first lines should always be present, but, do not forget to replace "pytest-dev__pytest-7432" with the actual issue_id you are working on.
 ```txt
@@ -36,7 +36,7 @@ PATH/TO/SOME/FILE/ON/YOUR/MACHINE#DESTINATION/PATH/ON/DOCKER/CONTAINER
 ...#...
 ```
 
-### Structure of test paths
+### Structure of 'test_paths' file
 ```
 PATH/TO/GENERATED/TEST/FILE#DESTINATION/PATH/ON/DOCKER
 ...#...
