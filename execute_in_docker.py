@@ -213,6 +213,51 @@ def main(image_name, test_paths, file_pairs_path, instance_id):
     container.remove()
     
     return result
+def validate_input_files(files_to_copy, test_paths, test_folders, instance_id):
+    # Check if each required file exists
+    if not os.path.exists(files_to_copy):
+        raise FileNotFoundError(f"Error: '{files_to_copy}' file is missing.")
+    if not os.path.exists(test_paths):
+        raise FileNotFoundError(f"Error: '{test_paths}' file is missing.")
+    if not os.path.exists(test_folders):
+        raise FileNotFoundError(f"Error: '{test_folders}' file is missing.")
+
+    # Validate 'files_to_copy' structure
+    with open(files_to_copy, 'r') as f:
+        lines = f.readlines()
+        if len(lines) < 2:
+            raise ValueError(f"Error: '{files_to_copy}' must contain at least two lines.")
+        if "INSTANCE_ID" in lines[0] or "INSTANCE_ID" in lines[1]:
+            print("FILE CONTENT NOT ALLOWED---------------------------")
+            print(lines)
+            raise ValueError(f"Error: '{files_to_copy}' has placeholders that need to be replaced with actual issue_id.")
+        for line in lines:
+            if "#" not in line or len(line.strip().split("#")) != 2:
+                print("FILE CONTENT NOT ALLOWED---------------------------")
+                print(line)
+                raise ValueError(f"Error: Each line in '{files_to_copy}' must contain exactly one '#' separating the source and destination paths.")
+    
+    # Validate 'test_paths' structure
+    with open(test_paths, 'r') as f:
+        for line in f:
+            if "#" not in line or len(line.strip().split("#")) != 2:
+                print("FILE CONTENT NOT ALLOWED---------------------------")
+                print(line)
+                raise ValueError(f"Error: Each line in '{test_paths}' must contain exactly one '#' separating the source and destination paths.")
+    
+    # Validate 'test_folders' structure and check for the instance-specific path
+    found_instance_path = False
+    with open(test_folders, 'r') as f:
+        for line in f:
+            parts = line.strip().split()
+            if len(parts) != 2:
+                raise ValueError(f"Error: Each line in '{test_folders}' must contain exactly two elements separated by space (project name and test folder path).")
+            if parts[0] in instance_id:
+                found_instance_path = True
+    if not found_instance_path:
+        raise ValueError(f"Error: '{test_folders}' does not contain a valid path mapping for the instance '{instance_id}'.")
+
+    print("All input files are valid and meet the required constraints.")
 
 # Run the main function
 if __name__ == "__main__":
@@ -227,6 +272,9 @@ if __name__ == "__main__":
     test_paths = args.test_paths
     files_to_copy = args.files_to_copy
     test_folders = args.test_folders
-    image_name = "islemdockerdev/{}".format(instance_id.replace("-", "").replace("_", ""))  # Replace with the actual Docker image name
+    
+    validate_input_files(files_to_copy, test_paths, test_folders, instance_id)
+
+    image_name = "islemdockerdev/{}".format(instance_id.replace("-", "").replace("_", "")) 
     output = main(image_name, test_paths, files_to_copy, instance_id)
     print("Final Output:\n", output)

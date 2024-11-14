@@ -1,2 +1,2 @@
-build_files/pytest-dev__pytest-7432/eval.sh#/testbed/eval.sh
-build_files/pytest-dev__pytest-7432/patch.diff#/testbed/patch.diff
+build_files/INSTANCE_ID/eval.sh#/testbed/eval.sh
+build_files/INSTANCE_ID/patch.diff#/testbed/patch.diff
